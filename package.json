@@ -3,10 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": "22.x" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "dev": "python3 -m http.server 4173 --bind 127.0.0.1",
-    "test": "node --check app.js && node --test model.test.mjs",
-    "build": "node scripts/build.mjs"
+    "dev": "npm run build && node scripts/dev-server.mjs",
+    "test": "node --check app.js && node --test *.test.mjs",
+    "build": "node scripts/build.mjs",
+    "test:browser": "npm run build && playwright test"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.110",
+    "@supabase/supabase-js": "^2.119.2",
+    "@vercel/functions": "^3.12.0",
+    "ai": "^7.0.183",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.6.1",
+    "@playwright/test": "^1.65.1",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.8"
   }
 }
