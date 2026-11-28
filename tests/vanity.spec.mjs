@@ -64,3 +64,25 @@ test('offline save survives reload and cannot overwrite a later cloud revision',
   await page.locator('#retry-sync').click();await expect(page.locator('#sync-status')).toContainText('changed on another device');
   expect(db.collection.revision).toBe(7);expect(db.collection.payload.products).toHaveLength(0);
 });
+
+test('password login handles rejection then opens the approved collection without email',async({page,context})=>{
+  await setup(context,{signedIn:false});
+  let attempts=0;
+  await context.route('https://vanitytest.supabase.co/auth/v1/token?grant_type=password',async route=>{
+    const body=route.request().postDataJSON();expect(body.email).toBe('izzy@example.com');
+    attempts++;
+    if(body.password!=='correct-test-password')return route.fulfill({status:400,json:{code:'invalid_credentials',msg:'Invalid login credentials'}});
+    return route.fulfill({json:{access_token:token,refresh_token:'refresh-test',expires_in:3600,token_type:'bearer',user:{id:uid,email:'izzy@example.com',aud:'authenticated'}}});
+  });
+  await page.goto('/');await expect(page.locator('#auth-form')).toBeVisible();
+  await page.locator('#auth-form [name=email]').fill('izzy@example.com');
+  await page.locator('#auth-form [name=password]').fill('wrong-test-password');
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await expect(page.locator('#auth-message')).toContainText('Invalid login credentials');
+  await expect(page.locator('#app-main')).toBeHidden();
+  await page.locator('#auth-form [name=password]').fill('correct-test-password');
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await expect(page.locator('#app-main')).toBeVisible();expect(attempts).toBe(2);
+  await expect(page.locator('#auth-form [name=password]')).toHaveValue('');
+  await page.reload();await expect(page.locator('#app-main')).toBeVisible();
+});

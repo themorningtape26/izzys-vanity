@@ -44,3 +44,13 @@ Previous build context was recovered by reading the Digest watched videos thread
 - Vercel project API access using existing local CLI credentials returns HTTP 403 “Not authorized”. Environment variables cannot be confirmed through that access. The production `/api/config` endpoint currently returns 404 on the original demo.
 - `.env.local` remains ignored; no secrets were printed or staged.
 - SOL reran the complete unit/database suite: 10 passed, 0 failed (exit 0). Browser suite: 3 passed, 0 failed.
+
+
+## Password-login recovery — 2026-11-27
+- Recovered the interrupted SOL thread. Current HEAD is `aa2d1d8`; the previous release was already pushed. Password-login changes remain local for review.
+- `app.js` uses Supabase `signInWithPassword`; `index.html` includes a required password field with password-manager autocomplete. Successful login clears the password field and opens the approved collection. No login email is sent.
+- Production build and all four mocked browser tests passed, including rejected password, successful password login, and session persistence after reload.
+- Real account password sign-in and approval still require live verification after release. Do not request or commit her password.
+- James explicitly authorized Codex to deploy this update while Claude is temporarily unavailable. GitHub pushes to main trigger Vercel.
+
+- Final verification: all 10 unit/database tests passed (0 failures), all 4 browser tests passed, production build passed, and `git diff --check` passed.

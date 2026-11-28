@@ -29,7 +29,7 @@ on conflict do nothing;
 
 An existing Auth user must also be approved in this table. The app cannot create arbitrary accounts. Using the same account on phone and computer shares the same collection; different accounts have separate collections.
 
-**Email delivery:** Supabase’s built-in mail service has recipient and rate restrictions. Configure custom SMTP for reliable delivery to Izzy’s email, and test a real sign-in link. Creating a user does not establish that email delivery works.
+**Email delivery:** Supabase’s built-in mail service has recipient and rate restrictions. Custom SMTP is needed for reliable password-recovery email delivery. The app now uses email/password sign-in, which does not send a login email. Create the user with a password and confirm their email in the dashboard; approve their UUID as described above.
 
 ## 4. Configure the app environment
 

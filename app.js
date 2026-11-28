@@ -211,8 +211,10 @@ async function openAccount(){
 }
 $('#auth-form').onsubmit=async e=>{
   e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;
-  try{const email=e.target.elements.email.value.trim();const {error}=await cloud.client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:location.origin}});
-    if(error)throw error;$('#auth-message').textContent='If this address has been invited, a sign-in link is on its way. Open it in this browser.';
+  $('#auth-message').textContent='Signing in…';
+  try{const email=e.target.elements.email.value.trim();const password=e.target.elements.password.value;
+    const {error}=await cloud.client.auth.signInWithPassword({email,password});
+    if(error)throw error;e.target.elements.password.value='';$('#auth-message').textContent='';await openAccount();
   }catch(error){$('#auth-message').textContent=error.message;}finally{button.disabled=false;}
 };
 $('#sign-out').onclick=async()=>{
@@ -248,7 +250,7 @@ async function init(){
   try{
     const response=await fetch('/api/config',{cache:'no-store'});if(!response.ok)throw new Error('Setup is not connected yet.');config=await response.json();
     if(!config.url||!config.key)throw new Error('Your private cloud connection is being set up. Please come back once setup is complete.');
-    cloud=createCloud(config);$('#auth-intro').textContent='Sign in with your invited email. Your products and photos stay private.';$('#auth-form').hidden=false;
+    cloud=createCloud(config);$('#auth-intro').textContent='Sign in with your email and password. Your products and photos stay private.';$('#auth-form').hidden=false;
     cloud.client.auth.onAuthStateChange(event=>{if(['SIGNED_IN','INITIAL_SESSION'].includes(event))setTimeout(()=>openAccount(),0);if(event==='SIGNED_OUT'){ready=false;$('#app-main').hidden=true;$('#auth-panel').hidden=false;$('#sign-out').hidden=true;}});
     const {data}=await cloud.client.auth.getSession();if(data.session)await openAccount();
   }catch(error){$('#auth-intro').textContent=error.message;$('#auth-form').hidden=true;}
